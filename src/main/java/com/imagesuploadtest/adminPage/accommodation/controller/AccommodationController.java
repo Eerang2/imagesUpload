@@ -39,7 +39,7 @@ public class AccommodationController {
         return "index";
     }
 
-    @GetMapping("/enroll1")
+    @GetMapping("/enroll")
     public String enroll(Model model) {
         System.out.println("in");
 
