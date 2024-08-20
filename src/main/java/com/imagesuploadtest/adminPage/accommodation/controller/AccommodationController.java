@@ -27,7 +27,6 @@ public class AccommodationController {
     private final UploadFile uploadFile;
     private final AccommodationServiceImpl accommodationService;
 
-
     @Autowired
     public AccommodationController(UploadFile uploadFile, AccommodationServiceImpl accommodationService) {
         this.uploadFile = uploadFile;
@@ -49,121 +48,98 @@ public class AccommodationController {
 
 
     @PostMapping("/save-location")
-    public ResponseEntity<?> saveLocation(@RequestParam("previewFiles") List<MultipartFile> files,
-//                                           @RequestParam("location") AccommodationDto accommodationDto,
-                                          @RequestParam(value = "roomImages[]", required = false) List<MultipartFile> roomImages,
+    public ResponseEntity<?> saveLocation(@RequestParam("previewFiles") List<MultipartFile> subFile,
+                                          @RequestParam("mainPhoto") List<MultipartFile> mainFile,
                                           @RequestParam MultiValueMap<String, String> rooms,
+                                          @ModelAttribute AccommodationDto accommodationDto,
                                           @ModelAttribute RoomForm roomForm
-                                           ) {
+    ) {
 
-        List<AccommodationDto> room1 = roomForm.getRooms();
 
+        System.out.println(mainFile.get(1).getOriginalFilename());
+        AccommodationImageDto mainImage = uploadFile.uploadSingleFile(mainFile.get(1), "MAIN");
+        System.out.println("main : " + mainImage);
+
+        int result = accommodationService.saveAccommodation(accommodationDto, mainImage);
+
+        System.out.println("result : " + result);
+
+
+        for (int i = 1; i < roomForm.getRooms().size()  ; i++) {
+            System.out.println("방 number : "  + roomForm.getRooms().get(i));
+        }
+
+        System.out.println(accommodationDto.getAccommodationName());
+
+        System.out.println("info : " + accommodationDto.getAccommodationInfo());
+        System.out.println("selected : " + accommodationDto.getAccommodationType());
+        System.out.println("ac : " + accommodationDto.getRoomName());
 
         System.out.println("name1 " + rooms.get("roomName"));
-        System.out.println("aaaa " + rooms.get("maxOccupation"));
         System.out.println("cccc " + rooms.get("standardOccupation"));
+        System.out.println(mainFile.size() + " main");
 
 
-        for (MultipartFile file : files) {
-            System.out.println("name : " + file.getOriginalFilename() );
-            for (AccommodationDto room : room1) {
-                System.out.println("end : " + room.getEndIndex());
+        System.out.println("phoen : " + accommodationDto.getAccommodationPhone() );
+
+
+
+        System.out.println();
+
+        int roomsSize = roomForm.getRooms().size()-1;
+        int startIndex =  roomsSize;
+
+//        System.out.println(roomForm.getRooms().get(i).getRoomName());
+        for (int i = 1; i < roomForm.getRooms().size(); i++) {
+            System.out.println("222222 : " + roomForm.getRooms().get(i).getRoomCount());
+            System.out.println("====>  " + roomForm.getRooms().get(i).getRoomCategory());
+            String roomCategory = roomForm.getRooms().get(i).getRoomCategory();
+            System.out.println("cc : " + roomForm.getRooms().get(i).getRoomName());
+            String checkIn = roomForm.getRooms().get(i).getCheckInTime();
+            String checkOut = roomForm.getRooms().get(i).getCheckOutTime();
+
+            System.out.println("checkIn : " + roomForm.getRooms().get(i).getCheckInTime());
+            System.out.println("chckkk : " + accommodationDto.getCheckInTime());
+
+            String roomName = roomForm.getRooms().get(i).getRoomName();
+
+//            List<Integer> standard = roomForm.getRooms().get(i).getStandardOccupation();
+//            System.out.println("standard : " + standard);
+//            List<Integer> max = roomForm.getRooms().get(i).getMaxOccupation();
+//            System.out.println("max : " + max);
+//            List<Integer> roomCount = roomForm.getRooms().get(i).getRoomCount();
+//
+//
+//
+//
+//            System.out.println("endIndex : " + roomForm.getRooms().get(i).getEndIndex());
+//            System.out.println("i : " + i);
+            // 객실1에 이미지 1개, 객실2에 이미지 2개
+            // endIndex = 1, 3
+            // roomsSize = 2
+            // startIndex = 2;
+            // 배열 접근할 때 객실1은 2번, 객실2는 3~4
+            int enrollRoom = accommodationService.enrollRooms(accommodationDto, roomCategory, roomName, checkIn,checkOut);
+            for (int k = startIndex; k <= roomForm.getRooms().get(i).getEndIndex()+roomsSize-1; k++) {
+
+                System.out.println(" K : " + k);
+                System.out.println("subFile Length : " + subFile.size());
+                System.out.println(subFile.get(k).getOriginalFilename());
+                AccommodationImageDto roomsImage = uploadFile.uploadSingleFile(subFile.get(k), "PREVIEW");
+//                accommodationService.enrollSubImages(roomsImage);
+                System.out.println();
             }
-
+            startIndex = roomForm.getRooms().get(i).getEndIndex()+ roomsSize;
         }
-//        // endIndex 값들을 처리
-//        allParams.forEach((key, value) -> {
-//            if (key.contains("endIndex")) {
-//                System.out.println("Key: " + key + ", Value: " + value);
-//                // key 예시: rooms[1].endIndex
-//                // value 예시: 2, 5 등
-//            }
-//        });
-//
-//        // 업로드된 파일들을 처리
-//        previewFiles.forEach((key, files) -> {
-//            System.out.println("Room Files Key: " + key);
-//            for (MultipartFile file : files) {
-//                System.out.println("File Name: " + file.getOriginalFilename());
-//                // 파일 저장 로직 (예: file.transferTo(new File(...)))
-//            }
-//        });
-
-
-//        System.out.println("=================================");
-//
-//        System.out.println("숙소 이름 : " + accommodationDto.getAccommodationName());
-//
-//        System.out.println("지번 : " + accommodationDto.getRegion());
-//        System.out.println("도로명 : " + accommodationDto.getRoadName());
-//        System.out.println("위도 : " + accommodationDto.getLat());
-//        System.out.println("경도 : " + accommodationDto.getLon());
-//
-//
-//        for (String item : accommodationDto.getAccommodationType()) {
-//            System.out.println("부대시설 : " + item);
-//        }
-////
-////        for (int i = 0; i < accommodationDto.getRoomCount().size(); i++) {
-////            System.out.println(data.get("[i]"));
-////        }
-//
-//        for (int i = 0; i < accommodationDto.getRoomCount().size() - 1; i++) {
-//            System.out.println("방 이름 : " + accommodationDto.getRoomName().get(i) + "-" + accommodationDto.getRoomCount().get(i) + " 의 기준 : " + accommodationDto.getStandardOccupation().get(i) + " - 최대 : " + accommodationDto.getMaxOccupation().get(i));
-//            System.out.println("주중 : " + accommodationDto.getWeekdayRate().get(i));
-//            System.out.println("금 : " + accommodationDto.getFridayRate().get(i));
-//            System.out.println("토 : " + accommodationDto.getSaturdayRate().get(i));
-//            System.out.println("일 : " + accommodationDto.getSundayRate().get(i));
-//            System.out.println();
-//        }
-//
-//        // 받은 endIndex 값을 사용해 필요한 로직을 처리
-////        System.out.println("Room 1 End Index: " + room1EndIndex);
-////        System.out.println("Room 2 End Index: " + room2EndIndex);
-////        System.out.println("Room 3 End Index: " + room0EndIndex);
-//
-//
-//
-//
-//
-//
-//
-////        for (int i = 0; i < 2; i++) {
-//////            System.out.println("image : " + image.get(i));
-////            System.out.println("file : " + imageFile.get(i));
-////
-////        }
-//
-//        for (int i = 0; i < accommodationDto.getRoomCount().size()-1  ; i++) {
-//
-//            System.out.println("방 number : "  + accommodationDto.getRoomCount().get(i));
-//        }
-
-
-
-//        System.out.println("=================================");
-
-
-
-
-
-//
-//        for(MultipartFile item : files) {
-//            System.out.println(item.getResource().toString());
-//
-//            System.out.println(item.getName());
-//            System.out.println(item.getContentType());
-//            System.out.println(item.toString());
-//        }
-//
+        System.out.println("==========");
 
 
         Map<String, String> response = new HashMap<>();
         try {
-//            List<AccommodationImageDto> images = uploadFile.upload(files);
+//            List<AccommodationImageDto> images = uploadFile.upload(subFile);
 
 
-//            int result = accommodationService.saveAccommodation(accommodationDto);
+//            int result = accommodationService.saveAccommodation(rooms);
 //            System.out.println( "result = " + result);
 
             response.put("message", "Upload successful!");
