@@ -3,9 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <script type="text/javascript" src="../static/smarteditor/js/HuskyEZCreator.js" charset="utf-8"></script>
+    <script type="text/javascript" src="../static/smarteditor/js/smarteditor2.js" charset="utf-8"></script>
 </head>
 <body>
 
 <h1>hello world</h1>
+<div id="smarteditor">
+    <label>
+   <textarea name="editorTxt" id="editorTxt0"
+             rows="20" cols="10"
+             style="max-width: 520px"></textarea>
+    </label>
+    <input type="button" onclick="preview()" value="미리보기">
+    <script>
+
+        let oEditors = [];
+
+        smartEditor = function() {
+            nhn.husky.EZCreator.createInIFrame({
+                oAppRef: oEditors,
+                elPlaceHolder: "editorTxt0", //textarea에 부여한 아이디와 동일해야한다.
+                sSkinURI: "../static/smarteditor/SmartEditor2Skin.html", //자신의 프로젝트에 맞게 경로 수
+                fCreator: "createSEditor2"
+            })
+        }
+
+        $(document).ready(function() {
+            //스마트에디터 적용
+            smartEditor();
+            //값 불러오기
+            function preview(){
+                // 에디터의 내용을 textarea에 적용
+                oEditors.getById["editorTxt0"].exec("UPDATE_CONTENTS_FIELD", []);
+                // textarea 값 불러오기
+                var content = document.getElementById("editorTxt0").value;
+                alert(content);
+                return;
+            }
+
+        })
+        $("#board-form-submit-smart").click(function(){
+            //id가 smarteditor인 textarea에 에디터에서 대입합니다.
+            oEditors.getById["smarteditor"].exec("UPDATE_CONTENTS_FIELD", []);
+            $("form").submit();
+        });
+
+
+    </script>
+</div>
+
 </body>
 </html>
